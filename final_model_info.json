@@ -1,0 +1,7 @@
+{
+  "model": "rtdetr-l",
+  "weights": "weights_rtdetr-l_final.pt",
+  "best_conf": 0.6000000000000001,
+  "imgsz": 640,
+  "params_M": 32.970476
+}
