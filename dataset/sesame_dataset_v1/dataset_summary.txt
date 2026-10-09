@@ -1,0 +1,41 @@
+SESAME FLOWER DATASET (YOLO bounding boxes) - PREPARATION SUMMARY
+================================================================
+Orthomosaic        : 25000 x 20999 px, 4 bands
+                     band 4 = validity mask only, NOT exported
+CRS                : EPSG:32652
+GSD                : 2.00 mm
+Field border area  : 107.78 m^2 (0.0108 ha)
+Source annotations : 1201 boxes
+
+Tile size          : 512 px = 1.024 m ; stride 256 px (50% overlap)
+Fold design        : 5 contiguous strips along X; straddling tiles discarded (zero leakage)
+
+TILE ACCOUNTING
+  candidate positions       : 800
+  rejected, outside field   : 488
+  rejected, nodata/black    : 23
+  rejected, fold buffer     : 73
+  flower-free tiles dropped : 0
+  KEPT with flowers         : 216
+  KEPT flower-free negatives: 0
+  KEPT TOTAL                : 216
+
+Box instances exported      : 2566 (duplicated across overlapping tiles)
+Mean flowers per tile       : 11.9
+Flower density in field     : 11.14 flowers m-2
+
+BOX SIZE
+  width  : 8.82 cm mean (44.1 px), range 2.73-23.29 cm
+  height : 8.27 cm mean (41.3 px), range 2.84-19.28 cm
+  mean box diameter : 8.55 cm (median 8.27)
+  object share of tile area : 0.742%
+
+FOLD COMPOSITION
+  fold  tiles  flowers
+  0     4      59
+  1     48     604
+  2     52     549
+  3     68     807
+  4     44     547
+
+================================================================
