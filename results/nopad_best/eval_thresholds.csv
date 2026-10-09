@@ -1,0 +1,16 @@
+model,fold,thr_F1_crossfit,thr_count_crossfit,thr_F1_oracle
+yolo26n-e2e,0,0.07,0.22,0.32
+yolo26n-e2e,1,0.07,0.23,0.07
+yolo26n-e2e,2,0.2,0.23,0.06
+yolo26n-e2e,3,0.07,0.26,0.21
+yolo26n-e2e,4,0.07,0.24,0.07
+yolo26n-nms,0,0.18,0.3,0.57
+yolo26n-nms,1,0.32,0.3,0.2
+yolo26n-nms,2,0.18,0.3,0.28
+yolo26n-nms,3,0.2,0.33,0.19
+yolo26n-nms,4,0.23,0.31,0.31
+rtdetr-l,0,0.54,0.56,0.74
+rtdetr-l,1,0.54,0.63,0.33
+rtdetr-l,2,0.47,0.56,0.54
+rtdetr-l,3,0.47,0.57,0.55
+rtdetr-l,4,0.54,0.58,0.51

@@ -1,0 +1,12 @@
+{
+ "n_cells_valid_ge_50pct": 1490,
+ "nms_e2e": 0.9786952005740651,
+ "nms_e2e_mean_diff": -0.5270815454269455,
+ "nms_e2e_n_cells": 1490,
+ "nms_rt": 0.9573117314190178,
+ "nms_rt_mean_diff": 0.2151223773821332,
+ "nms_rt_n_cells": 1490,
+ "rt_e2e": 0.959778611677946,
+ "rt_e2e_mean_diff": -0.3119591680448124,
+ "rt_e2e_n_cells": 1490
+}
