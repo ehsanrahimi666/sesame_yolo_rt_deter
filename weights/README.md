@@ -25,6 +25,9 @@ for m in yolo26n rtdetr-l; do
 done
 ```
 
+To check the downloads, place the assets in one folder together with `SHA256SUMS.txt` (also in this folder of the
+repository) and run `sha256sum -c SHA256SUMS.txt` (Windows PowerShell: `Get-FileHash <file> -Algorithm SHA256`).
+
 Usage in Python:
 
 ```python
