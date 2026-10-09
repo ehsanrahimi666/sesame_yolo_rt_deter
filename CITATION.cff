@@ -1,0 +1,31 @@
+cff-version: 1.2.0
+message: "If you use these data, code, or models, please cite the article and this repository."
+title: "Sesame flower cluster detection and counting in UAV imagery with YOLO26 and RT-DETR: data, code, and models"
+authors:
+  - family-names: Rahimi
+    given-names: Ehsan
+    orcid: "https://orcid.org/0000-0002-8401-472X"
+    affiliation: "Agricultural Research Institute, Gyeongkuk National University, Andong, Republic of Korea"
+  - family-names: Jung
+    given-names: Chuleui
+    orcid: "https://orcid.org/0000-0001-8134-9279"
+    affiliation: "Gyeongkuk National University, Andong, Republic of Korea"
+repository-code: "https://github.com/ehsanrahimi666/sesame_yolo_rt_deter"
+keywords:
+  - object detection
+  - flower counting
+  - unmanned aerial vehicle
+  - spatial cross-validation
+  - YOLO26
+  - RT-DETR
+  - Sesamum indicum
+preferred-citation:
+  type: article
+  title: "Automated detection and counting of sesame (Sesamum indicum) flower clusters in unmanned aerial vehicle imagery: Comparing a lightweight YOLO26 model with a larger RT-DETR transformer"
+  authors:
+    - family-names: Rahimi
+      given-names: Ehsan
+    - family-names: Jung
+      given-names: Chuleui
+  journal: "Applications in Plant Sciences"
+  status: submitted

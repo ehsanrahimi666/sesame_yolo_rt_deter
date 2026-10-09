@@ -1,0 +1,17 @@
+# Analysis environment of the revision (Python 3.13, CPU). Training used the same Ultralytics version on a Kaggle GPU.
+# CPU-only PyTorch: pip install torch==2.14.1 torchvision==0.29.1 --index-url https://download.pytorch.org/whl/cpu
+ultralytics==8.4.105
+torch==2.14.1
+torchvision==0.29.1
+numpy==2.5.3
+pandas==3.0.5
+scipy==1.18.1
+geopandas==1.2.0
+shapely==2.2.0
+pyogrio==0.13.0
+pyproj==3.8.0
+rasterio==1.5.2
+opencv-python==5.0.0.93
+pillow==12.3.0
+matplotlib==3.11.2
+PyYAML==6.0.3

@@ -1,0 +1,11 @@
+# local data and model files that are not part of the repository
+weights/best/
+weights/last/
+*.pt
+orthomosaic/
+revision_analysis/out/
+revision_analysis/previews/
+__pycache__/
+*.pyc
+*.cache
+.venv/
