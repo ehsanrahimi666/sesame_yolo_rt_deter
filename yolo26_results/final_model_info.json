@@ -1,0 +1,7 @@
+{
+  "model": "yolo26n",
+  "weights": "weights_yolo26n_final.pt",
+  "best_conf": 0.04,
+  "imgsz": 640,
+  "params_M": 2.57228
+}

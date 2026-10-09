@@ -1,0 +1,6 @@
+path: /kaggle/working/ds
+train: /kaggle/working/eval/folds/fold0/train.txt
+val: /kaggle/working/eval/folds/fold0/val.txt
+nc: 1
+names:
+  0: sesame_flower

@@ -1,0 +1,37 @@
+{
+ "cpu": "x86_64",
+ "torch": "2.14.1+cpu",
+ "ultralytics": "8.4.105",
+ "threads": 2,
+ "cpu_model": "Intel(R) Xeon(R) Processor @ 2.80GHz",
+ "yolo26n-e2e": {
+  "params": 2504190,
+  "GFLOPs_672": 6.36,
+  "total_ms_mean": 151.78393462982058,
+  "total_ms_sd": 7.802914638913546,
+  "inference_ms_mean": 146.34027086996866,
+  "preprocess_ms_mean": 3.5881983800572925,
+  "postprocess_ms_mean": 0.23636925994651392,
+  "tiles_per_s": 6.588312540710304
+ },
+ "yolo26n-nms": {
+  "params": 2504190,
+  "GFLOPs_672": 6.36,
+  "total_ms_mean": 148.12801820984532,
+  "total_ms_sd": 7.768897538476544,
+  "inference_ms_mean": 142.61957591999817,
+  "preprocess_ms_mean": 3.406514900016191,
+  "postprocess_ms_mean": 0.8338453500800824,
+  "tiles_per_s": 6.750917294953285
+ },
+ "rtdetr-l": {
+  "params": 32808131,
+  "GFLOPs_672": 120.67,
+  "total_ms_mean": 1422.5589572799615,
+  "total_ms_sd": 46.48722839481983,
+  "inference_ms_mean": 1419.6531294900703,
+  "preprocess_ms_mean": 2.1878504998676362,
+  "postprocess_ms_mean": 0.3341692200228863,
+  "tiles_per_s": 0.7029585627242293
+ }
+}

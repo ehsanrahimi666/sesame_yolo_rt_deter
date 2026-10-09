@@ -1,0 +1,17 @@
+{
+  "ORTHO": "D:\\sdm\\new papers\\idea\\DJI\\Sesame\\DJI_202607051136_008_Create-Area-Route7\\RGB\\odm_orthophoto\\odm_orthophoto.tif",
+  "FIELD": "D:\\sdm\\new papers\\idea\\DJI\\Sesame\\DJI_202607051136_008_Create-Area-Route7\\RGB\\Field_border.shp",
+  "ANNOT": "D:\\sdm\\new papers\\idea\\DJI\\Sesame\\DJI_202607051136_008_Create-Area-Route7\\RGB\\sesame.shp",
+  "OUT": "D:\\sdm\\new papers\\idea\\DJI\\Sesame\\dataset\\sesame_dataset_v1",
+  "ZIP_NAME": "sesame_dataset_v1.zip",
+  "CLASS_NAME": "sesame_flower",
+  "TILE": 512,
+  "STRIDE": 256,
+  "N_FOLDS": 5,
+  "VALID_FRAC": 1.0,
+  "MIN_FIELD_FRAC": 0.9,
+  "EMPTY_TILE_FRAC": 0.15,
+  "MIN_POLY_KEEP": 0.5,
+  "MIN_BOX_PX": 4,
+  "SEED": 0
+}

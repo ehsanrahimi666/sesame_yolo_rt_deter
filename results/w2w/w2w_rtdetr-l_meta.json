@@ -1,0 +1,14 @@
+{
+ "tag": "rtdetr-l",
+ "weights": "weights/best/weights_rtdetr-l_final.pt",
+ "pad": 16,
+ "grid_positions": 2632,
+ "tiles_processed": 2005,
+ "raw_dets": 108978,
+ "kept_after_nms": 55155,
+ "elapsed_s": 3387.9844620227814,
+ "conf_floor": 0.01,
+ "tile": 512,
+ "overlap": 64,
+ "nms_iou": 0.5
+}
