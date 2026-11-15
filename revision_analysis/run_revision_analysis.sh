@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Complete evaluation workflow of the revised manuscript. Run from revision_analysis/:
 #   bash run_revision_analysis.sh            # everything that needs only the tiles and the weights
-#   WITH_ORTHO=1 bash run_revision_analysis.sh   # also the steps that need the orthomosaic (wall-to-wall, Figure 1, Figure S1)
+#   WITH_ORTHO=1 bash run_revision_analysis.sh   # also the steps that need the orthomosaic (wall-to-wall, Figure 1, Figure S2)
 # Weights: ../weights/best/weights_<model>_fold<k>.pt (+ _final.pt) and ../weights/last/weights_<model>_fold<k>.pt
 set -euo pipefail
 PY=${PYTHON:-python}
