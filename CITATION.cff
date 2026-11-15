@@ -21,7 +21,7 @@ keywords:
   - Sesamum indicum
 preferred-citation:
   type: article
-  title: "Automated detection and counting of sesame (Sesamum indicum) flower clusters in unmanned aerial vehicle imagery: Comparing a lightweight YOLO26 model with a larger RT-DETR transformer"
+  title: "Automated detection and counting of sesame (Sesamum indicum) flower clusters in unmanned aerial vehicle imagery"
   authors:
     - family-names: Rahimi
       given-names: Ehsan

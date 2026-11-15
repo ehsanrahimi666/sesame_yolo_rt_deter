@@ -40,4 +40,4 @@ with rasterio.open(ORTHO_TIF) as ds:
         ax.set_xlim(0, 2 * R); ax.set_ylim(2 * R, 0); ax.set_xticks([]); ax.set_yticks([])
         ax.set_title(f"f{f} {s:.2f}", fontsize=5, pad=1)
 for ax in axs.ravel()[n:]: ax.axis("off")
-fig.tight_layout(pad=0.2); fig.savefig(FIGS_DIR + "FigureS1_consensus_false_positives.png", dpi=250); print("saved")
+fig.tight_layout(pad=0.2); fig.savefig(FIGS_DIR + "FigureS2_consensus_false_positives.png", dpi=250); print("saved")

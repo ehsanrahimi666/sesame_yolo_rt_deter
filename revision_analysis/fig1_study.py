@@ -1,7 +1,7 @@
 """Figure 1: study system, annotation unit and spatially blocked folds."""
 import sys as _s, os as _o; _s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.abspath(__file__)), "lib")); from paths import *  # noqa
 
-import json, numpy as np, pandas as pd, geopandas as gpd, matplotlib
+import os, json, numpy as np, pandas as pd, geopandas as gpd, matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Polygon as MPoly
@@ -22,7 +22,7 @@ edges = np.linspace(field.bounds[0], field.bounds[2], 6)
 fig = plt.figure(figsize=(7.2, 6.4))
 outer = fig.add_gridspec(2, 1, height_ratios=[1.0, 0.95], hspace=0.30)
 top = outer[0].subgridspec(1, 2, width_ratios=[1, 1.62], wspace=0.17)
-bot = outer[1].subgridspec(1, 3, width_ratios=[1, 1, 1.25], wspace=0.30)
+bot = outer[1].subgridspec(1, 3, width_ratios=[1, 1, 1.25], wspace=0.34)
 # (a) overview ---------------------------------------------------------------------------------
 ax = fig.add_subplot(top[0])
 im = Image.open(W + "ortho_1cm.jpg"); w, h = im.size; s = 0.009999786983546802
@@ -67,20 +67,31 @@ for line in open(D + f"labels/{ex.stem}.txt").read().splitlines():
 ax.add_patch(Rectangle((128, 128), 256, 256, fill=False, ec="white", lw=0.9, ls=(0, (3, 2))))
 ax.plot([20, 120], [490, 490], color="white", lw=2); ax.text(70, 478, "20 cm", color="white", ha="center", fontsize=7, weight="bold")
 ax.set_xticks([]); ax.set_yticks([]); ax.set_title("(C) Tile with reference boxes;\ndashed = evaluation core", loc="left", fontsize=8)
-# (d) close-up of one flower cluster ------------------------------------------------------------
+# (d) close-up of flower clusters from the full-resolution orthomosaic ------------------------------
+import rasterio
+from rasterio.windows import Window
+from matplotlib.patches import Polygon as MPoly2
 ax = fig.add_subplot(bot[1])
-labs = [list(map(float, l.split()))[1:] for l in open(D + f"labels/{ex.stem}.txt").read().splitlines()]
-labs = sorted(labs, key=lambda v: -(v[2] * v[3]) if v[0] < 0.3 else 0)  # a large box in the left part of the tile
-xc, yc, ww, hh = [v * 512 for v in labs[0]]
-cx0, cy0 = int(max(0, xc - 50)), int(max(0, yc - 45))
-c = tim.crop((cx0, cy0, cx0 + 100, cy0 + 90))
-ax.imshow(c, extent=[0, 100, 90, 0], interpolation="nearest")
-for v in labs:
-    bx, by, bw, bh = (v[0] - v[2] / 2) * 512 - cx0, (v[1] - v[3] / 2) * 512 - cy0, v[2] * 512, v[3] * 512
-    ax.add_patch(Rectangle((bx, by), bw, bh, fill=False, ec="#ffd400", lw=1.0))
-ax.set_xlim(0, 100); ax.set_ylim(90, 0)
-ax.plot([6, 31], [84, 84], color="white", lw=2); ax.text(18.5, 80.5, "5 cm", color="white", ha="center", fontsize=7, weight="bold")
-ax.set_xticks([]); ax.set_yticks([]); ax.set_title("(D) A box encloses a cluster\nof open corollas", loc="left", fontsize=8)
+ann_d = gpd.read_file(B + "sesame.shp")
+g42 = ann_d.geometry.iloc[42]; cxd, cyd = g42.centroid.x + 0.03, g42.centroid.y + 0.03
+half = 0.22                                                     # 44 x 44 cm window
+with rasterio.open(ORTHO_TIF) as ds:
+    r_off = 0
+    c0 = int(round((cxd - half - X0) / RX)); r0 = int(round((Y0 - (cyd + half)) / RY)) - r_off
+    n = int(round(2 * half / RX))
+    a = ds.read([1, 2, 3], window=Window(c0, r0, n, n))
+wx0 = X0 + c0 * RX; wy1 = Y0 - (r0 + r_off) * RY
+ax.imshow(np.transpose(a, (1, 2, 0)), extent=[0, n * RX * 100, n * RY * 100, 0], interpolation="lanczos")
+win = box(wx0, wy1 - n * RY, wx0 + n * RX, wy1)
+for gg in ann_d.geometry:
+    if gg.intersects(win):
+        xy = np.array(gg.exterior.coords)
+        ax.add_patch(MPoly2(np.c_[(xy[:, 0] - wx0) * 100, (wy1 - xy[:, 1]) * 100], closed=True, fill=False, ec="#ffd400", lw=1.1))
+bx0, by0, bx1, by1 = ann_d.geometry.iloc[43].bounds
+ax.add_patch(Rectangle(((bx0 - wx0) * 100, (wy1 - by1) * 100), (bx1 - bx0) * 100, (by1 - by0) * 100, fill=False, ec="white", lw=1.0, ls=(0, (2.5, 1.5))))
+ax.set_xlim(0, n * RX * 100); ax.set_ylim(n * RY * 100, 0)
+ax.plot([2.0, 7.0], [41.5, 41.5], color="white", lw=2); ax.text(4.5, 40.2, "5 cm", color="white", ha="center", fontsize=7, weight="bold")
+ax.set_xticks([]); ax.set_yticks([]); ax.set_title("(D) Flower clusters at\nshoot tips", loc="left", fontsize=8)
 # (e) reference box size vs single-corolla length --------------------------------------------------
 ax = fig.add_subplot(bot[2])
 ann = gpd.read_file(B + "sesame.shp"); bb = np.array([g.bounds for g in ann.geometry])
@@ -98,4 +109,5 @@ ax.set_xlim(0, 20); ax.tick_params(length=2, pad=1)
 for sp in ["top", "right"]: ax.spines[sp].set_visible(False)
 ax.set_title(f"(E) Size of the {len(side)}\nreference annotations", loc="left", fontsize=8)
 fig.savefig(FIGS_DIR + "Figure1.png", dpi=400, bbox_inches="tight", pad_inches=0.03)
+fig.savefig(FIGS_DIR + "Figure1.tif", dpi=600, bbox_inches="tight", pad_inches=0.03, pil_kwargs={"compression": "tiff_lzw"})
 print(ex.fold, ex.stem)

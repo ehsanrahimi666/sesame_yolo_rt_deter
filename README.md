@@ -3,14 +3,14 @@
 Data, code, trained models, and results for:
 
 > Rahimi, E., and C. Jung. Automated detection and counting of sesame (*Sesamum indicum*) flower clusters in unmanned
-> aerial vehicle imagery: Comparing a lightweight YOLO26 model with a larger RT-DETR transformer. *Applications in Plant
-> Sciences* (in revision).
+> aerial vehicle imagery. *Applications in Plant Sciences* (in revision).
 
 The repository allows the complete analysis to be reproduced: preparation of the tiled data set and spatial folds,
 five-fold spatially blocked cross-validation of YOLO26n and RT-DETR-l, the evaluation used in the manuscript
 (identical inference protocol for all detectors, de-duplicated cluster-level metrics, cross-fitted confidence
-thresholds, block-level counting accuracy, paired tests, and spatial bootstrap), the CPU benchmark, and the
-wall-to-wall mapping of the field.
+thresholds, block-level counting accuracy, paired tests, and spatial bootstrap), the CPU benchmark, the
+wall-to-wall mapping of the field with seam-aware stitching of overlapping tiles, and the validation of the complete
+mapping pipeline against the reference annotations.
 
 ---
 
@@ -44,18 +44,23 @@ sesame_yolo_rt_deter/
 ├── revision_analysis/            evaluation workflow of the revised manuscript (CPU)
 │   ├── lib/paths.py              input/output locations (relative to the repository; override with environment variables)
 │   ├── lib/evalcore.py           matching, AP, cluster-level de-duplication, block counts
-│   ├── run_revision_analysis.sh  runs the complete workflow in order
+│   ├── lib/stitch.py             tiling grid of the mapping pipeline and seam-aware stitching
+│   ├── lib/tiles_io.py           reading tiles from the orthomosaic with the inference protocol
+│   ├── run_revision_analysis.sh  runs the workflow of the first revision in order
+│   ├── run_revision2_analysis.sh runs the additional analyses of the second revision (section 4)
 │   └── *.py                      individual steps (see below)
-├── results/                      outputs used in the manuscript (see "Results files")
-├── figures/                      Figures 1-5 and Figure S1 of the manuscript
+├── results/                      outputs used in the manuscript (see "Results files"); results/r2/ = second revision
+├── figures/                      Figures 1-5 and Figures S1-S2 of the manuscript
 └── weights/                      download location for the trained weights (see weights/README.md)
 ```
 
 The trained weights of all models (best and last checkpoints of every fold model, and the final models) are provided
 as assets of the GitHub release of this repository (see `weights/README.md`). The orthomosaic (25,000 x 20,999 pixels,
 2 mm; about 0.8 GB) and the raw UAV images are not included because of their size; they are available from the
-corresponding author on request. They are needed only for the wall-to-wall mapping, Figure 1, and Figure S1; all
-cross-validation results can be reproduced from the tiles in `dataset/sesame_dataset_v1/`.
+corresponding author on request. They are needed only for the wall-to-wall mapping, the validation of the mapping
+pipeline, the analysis of detections outside the annotated area, Figure 1, and Figure S2; all cross-validation results
+can be reproduced from the tiles in `dataset/sesame_dataset_v1/`, and the validation of the mapping pipeline from the
+raw out-of-fold detections in `results/r2/mapval/`.
 
 ---
 
@@ -130,7 +135,7 @@ Download the weights first (see `weights/README.md`), so that they are found und
 ```bash
 cd revision_analysis
 bash run_revision_analysis.sh                 # steps that need only the tiles and the weights
-WITH_ORTHO=1 bash run_revision_analysis.sh    # also wall-to-wall mapping, Figure 1 and Figure S1 (needs the orthomosaic)
+WITH_ORTHO=1 bash run_revision_analysis.sh    # also wall-to-wall mapping, Figure 1 and Figure S2 (needs the orthomosaic)
 ```
 
 or step by step:
@@ -174,7 +179,8 @@ or step by step:
    python w2w_summary.py         # totals at cross-validated, count-calibrated and common thresholds; 1-m grids
    ```
 6. **Figures**: `make_previews.py` + `fig1_study.py` (Figure 1), `figs_results.py` (Figures 2-4), `fig5_w2w.py`
-   (Figure 5), `fp_contact_sheet.py` (Figure S1).
+   (Figure 5; maps after seam-aware stitching, see section 4), `figS1_loss_curves.py` (Figure S1),
+   `fp_contact_sheet.py` (Figure S2).
 
 ### Reproducing the tables and figures
 
@@ -183,13 +189,17 @@ or step by step:
 | Table 1 (acquisition and processing) | `flight_geometry.py`, `valid_area.py`; image metadata and photogrammetry report | `out/flight_geometry.json`, `out/valid_area.json` |
 | Table 2 (fold composition) | `dataset_audit.py`, `evaluate_cv.py` | `out/fold_composition.csv`, `out/fold_separation.csv`, `out/pad16_last/eval_blocks.csv` |
 | Table 3 (configurations, cost) | `yolo26_results/runs/*/args.yaml`, `Rt_DETER/runs/*/args.yaml`, `benchmark_speed.py` | `out/benchmark_cpu.json` |
-| Table 4 (cross-validated accuracy) | `evaluate_cv.py`, `stats_compare.py`, `consolidate.py` | `out/pad16_last/*.csv`, `out/summary.json` |
-| Table 5 (wall-to-wall) | `wall_to_wall.py`, `w2w_summary.py` | `out/w2w_summary.csv` |
+| Table 4 (cross-validated accuracy, 95% CIs) | `evaluate_cv.py`, `stats_compare.py`, `consolidate.py`, `block_bootstrap.py` | `out/pad16_last/*.csv`, `out/summary.json`, `out/r2/block_bootstrap_ci.csv` |
+| Table 5 (wall-to-wall) | `wall_to_wall_raw.py`, `wall_to_wall_stitch.py` | `out/r2/w2w/w2w_summary_r2.csv` |
+| Table 6 (validation of the mapping pipeline) | `mapping_validation_predict.py`, `mapping_validation_eval.py --stitch` | `out/r2/mapval/mapval_summary_stitched.csv` (and `mapval_summary.csv`, global NMS only) |
 | Figure 1 | `make_previews.py`, `fig1_study.py` | `figures/Figure1.png` |
 | Figures 2-4 | `figs_results.py` | `figures/Figure2.png` - `Figure4.png` |
-| Figure 5 | `w2w_summary.py`, `fig5_w2w.py` | `figures/Figure5.png` |
+| Figure 5 | `wall_to_wall_stitch.py`, `fig5_w2w.py` | `figures/Figure5.png` |
 | Appendix S1, Tables S1-S5 | `evaluate_cv.py`, `stats_compare.py`, `box_size_bias.py`, `selection_bias.py`, `consolidate.py` | `out/*/eval_fold_metrics.csv`, `stats_pairs.csv`, `stats_bootstrap.csv`, `eval_thresholds.csv`, `out/final/selection_bias.csv` |
-| Appendix S1, Figure S1 | `fp_contact_sheet.py` | `figures/FigureS1_consensus_false_positives.png` |
+| Appendix S1, Table S6 (without fold 0) | `fold0_sensitivity.py` | `out/r2/fold0excl_*.csv` |
+| Appendix S1, Table S7 (outside the annotated area) | `nonvegetated_detections.py`, `visual_check_sample.py` | `out/r2/nonvegetated_detections.csv`, `out/r2/visual_check_sample.csv` (labels: `results/r2/visual_check_labels.csv`) |
+| Appendix S1, Figure S1 (losses) | `figS1_loss_curves.py` | `figures/FigureS1_loss_curves.png`, `out/r2/loss_summary.csv` |
+| Appendix S1, Figure S2 | `fp_contact_sheet.py` | `figures/FigureS2_consensus_false_positives.png` |
 
 Neither the weights nor the orthomosaic are needed to reproduce the reported accuracy. Copy the folders
 `results/pad16_last`, `pad16_best`, `nopad_last`, `nopad_best`, and `native_best` (out-of-fold predictions) and the
@@ -210,6 +220,50 @@ This reproduces every value in `results/summary.json` and every evaluation file 
 
 ---
 
+## 4. Additional analyses of the second revision
+
+All steps are run from `revision_analysis/` and write to `revision_analysis/out/r2/`; `run_revision2_analysis.sh` runs
+them in order. The steps marked (O) need the orthomosaic (`SESAME_ORTHO`), those marked (W) the trained weights.
+
+```bash
+cd revision_analysis
+# validation of the complete mapping pipeline against all 1201 reference clusters (Table 6)
+for k in 0 1 2 3 4; do                                    # (O, W) out-of-fold raw detections, fold-k model on strip k
+  python mapping_validation_predict.py yolo26n  nms  $k
+  python mapping_validation_predict.py yolo26n  e2e  $k
+  python mapping_validation_predict.py rtdetr-l none $k
+done
+python mapping_validation_eval.py --stitch                # seam-aware stitching (pipeline of the manuscript)
+python mapping_validation_eval.py                         # global NMS only (pipeline of the first revision)
+# wall-to-wall mapping with seam-aware stitching (Table 5, Figure 5)
+python wall_to_wall_raw.py yolo26n  nms                   # (O, W) raw detections of the final models, before NMS
+python wall_to_wall_raw.py yolo26n  e2e
+python wall_to_wall_raw.py rtdetr-l none
+python wall_to_wall_stitch.py                             # (O) stitching, global NMS, totals, 1-m grids, agreement
+python fig5_w2w.py
+# detections outside the annotated area (Table S7)
+python nonvegetated_detections.py                         # excess-green vegetation mask (1-cm preview), detections on bare ground
+python visual_check_sample.py                             # (O) random samples and the image sheet that was classified
+# statistics and training curves (no orthomosaic or weights needed)
+python block_bootstrap.py                                 # 95% CIs of the counting statistics (Table 4)
+python fold0_sensitivity.py                               # primary analysis without fold 0 (Table S6)
+python figS1_loss_curves.py                               # training and held-out losses (Figure S1)
+```
+
+Without the orthomosaic and the weights, copy the raw detections first and run the remaining steps:
+
+```bash
+mkdir -p out/r2/mapval out/r2/w2w
+cp ../results/r2/mapval/raw_*.csv out/r2/mapval/ && cp ../results/r2/w2w/raw_*.csv ../results/r2/w2w/valid_frac_1m.npy out/r2/w2w/
+python mapping_validation_eval.py --stitch && python mapping_validation_eval.py
+python wall_to_wall_stitch.py                             # without the orthomosaic, the no-data test is skipped
+python fig5_w2w.py && python block_bootstrap.py && python fold0_sensitivity.py && python figS1_loss_curves.py
+```
+
+The validation of the mapping pipeline showed that merging overlapping tiles by global NMS alone (`wall_to_wall.py`,
+first revision) retained truncated duplicates of clusters cut by tile edges. The maps of the second revision therefore
+use seam-aware stitching; `results/w2w/` keeps the detections of the first revision for comparison.
+
 ## Key definitions
 
 * **Primary protocol:** tile resized to 640 px + 16-px grey border (672-px network input), last checkpoints, predictions
@@ -227,7 +281,15 @@ This reproduces every value in `results/summary.json` and every evaluation file 
 * **Blocks:** complete 2 x 2 groups of cores (1.024 x 1.024 m); every prediction and reference box is assigned to the
   core containing its center and thereby to that core's block.
 * **Paired tests:** paired t-test, exact Wilcoxon signed-rank test, and corrected resampled t-test (Nadeau and Bengio,
-  2003) over the five folds; **spatial bootstrap:** 2000 resamples of the 0.512-m cores within folds (seed 2026).
+  2003) over the five folds; **spatial bootstrap:** 2000 resamples of the 0.512-m cores within folds (seed 2026);
+  counting statistics: 2000 resamples of the 1.024-m blocks within folds (seed 2026).
+* **Seam-aware stitching (mapping):** tiles of 512 px with a stride of 448 px; a detection is kept only if its centre
+  lies nearer to the centre of the tile that produced it than to the centre of any other tile (for the regular overlap,
+  outside the outer 32 px of each shared margin), followed by global NMS (IoU 0.5) and removal of detections centred on
+  no-data pixels.
+* **Validation of the mapping pipeline:** each fold model (last checkpoint) is applied with the mapping pipeline to its
+  own strip of the annotated area at its cross-fitted threshold; the pooled map is matched to all 1201 reference boxes
+  (IoU >= 0.5) and compared on the 72 cells of the 1-m grid that lie entirely inside the annotated area.
 
 ## Results files
 
@@ -237,7 +299,10 @@ This reproduces every value in `results/summary.json` and every evaluation file 
 | `results/pad16_best/`, `nopad_best/`, `nopad_last/`, `native_best/` | the same for the sensitivity settings |
 | `results/w2w/` | wall-to-wall detections (`w2w_<config>.csv`, map coordinates in EPSG:32652, confidence >= 0.01) and run metadata |
 | `results/w2w_summary.csv`, `w2w_agreement.json` | wall-to-wall totals, densities, box sizes, and agreement of 1-m cell densities |
-| `results/summary.json` | all numbers reported in the manuscript |
+| `results/summary.json` | all numbers of the first revision; numbers added in the second revision are in `results/r2/` |
+| `results/r2/mapval/` | validation of the mapping pipeline: raw out-of-fold detections `raw_<config>_fold<k>.csv` (orthomosaic pixels, before stitching and NMS), `mapval_summary_stitched.csv`, `mapval_summary.csv` (global NMS only), cell counts |
+| `results/r2/w2w/` | wall-to-wall mapping of the second revision: raw detections `raw_<config>.csv`, stitched maps `w2w_<config>_stitched.csv` (map coordinates, EPSG:32652), `w2w_summary_r2.csv`, `w2w_agreement_r2.json`, 1-m grids, valid fraction of the 1-m cells |
+| `results/r2/*.csv` | 95% CIs of the counting statistics, analysis without fold 0, loss summary, detections on non-vegetated ground, visual check (`visual_check_labels.csv`: sampled detections and the observer's classification) |
 | `results/*.csv`, `*.json` | fold composition and separation, annotation shape, box-size bias, CPU benchmark, training-log summary, valid area, flight geometry |
 
 The files `cv_results.csv`, `cv_summary.csv`, `final_model_info.json`, and `fig_*.png` in `yolo26_results/` and
